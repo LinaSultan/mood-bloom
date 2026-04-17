@@ -33,15 +33,15 @@ export const Chat = ({ mood }: { mood: MoodKey }) => {
     setLoading(true);
 
     let assistant = "";
+    let started = false;
     const upsert = (chunk: string) => {
       assistant += chunk;
       setMessages((prev) => {
-        const last = prev[prev.length - 1];
-        if (last?.role === "assistant" && last.content !== messages[messages.length - 1]?.content) {
-          // continue updating last assistant
-          return prev.map((m, i) => (i === prev.length - 1 ? { ...m, content: assistant } : m));
+        if (!started) {
+          started = true;
+          return [...prev, { role: "assistant", content: assistant }];
         }
-        return [...prev, { role: "assistant", content: assistant }];
+        return prev.map((m, i) => (i === prev.length - 1 ? { ...m, content: assistant } : m));
       });
     };
 
