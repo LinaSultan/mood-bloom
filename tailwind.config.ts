@@ -13,6 +13,18 @@ export default {
       },
     },
     extend: {
+      fontFamily: {
+        serif: ["'Instrument Serif'", "Georgia", "serif"],
+        sans: ["'Work Sans'", "system-ui", "sans-serif"],
+      },
+      backgroundImage: {
+        "gradient-calm": "var(--gradient-calm)",
+        "gradient-sage": "var(--gradient-sage)",
+      },
+      boxShadow: {
+        soft: "var(--shadow-soft)",
+        card: "var(--shadow-card)",
+      },
       colors: {
         border: "hsl(var(--border))",
         input: "hsl(var(--input))",
@@ -22,6 +34,14 @@ export default {
         primary: {
           DEFAULT: "hsl(var(--primary))",
           foreground: "hsl(var(--primary-foreground))",
+          soft: "hsl(var(--primary-soft))",
+        },
+        mood: {
+          anxious: "hsl(var(--mood-anxious))",
+          stressed: "hsl(var(--mood-stressed))",
+          sad: "hsl(var(--mood-sad))",
+          regretful: "hsl(var(--mood-regretful))",
+          neutral: "hsl(var(--mood-neutral))",
         },
         secondary: {
           DEFAULT: "hsl(var(--secondary))",
