@@ -14,7 +14,103 @@ export type Database = {
   }
   public: {
     Tables: {
-      [_ in never]: never
+      feedback: {
+        Row: {
+          created_at: string
+          device_id: string
+          id: string
+          method: string
+          mood: string
+          rating: string
+          session_id: string | null
+        }
+        Insert: {
+          created_at?: string
+          device_id: string
+          id?: string
+          method: string
+          mood: string
+          rating: string
+          session_id?: string | null
+        }
+        Update: {
+          created_at?: string
+          device_id?: string
+          id?: string
+          method?: string
+          mood?: string
+          rating?: string
+          session_id?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "feedback_session_id_fkey"
+            columns: ["session_id"]
+            isOneToOne: false
+            referencedRelation: "sessions"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      moods: {
+        Row: {
+          created_at: string
+          device_id: string
+          id: string
+          mood: string
+          note: string | null
+        }
+        Insert: {
+          created_at?: string
+          device_id: string
+          id?: string
+          mood: string
+          note?: string | null
+        }
+        Update: {
+          created_at?: string
+          device_id?: string
+          id?: string
+          mood?: string
+          note?: string | null
+        }
+        Relationships: []
+      }
+      sessions: {
+        Row: {
+          created_at: string
+          device_id: string
+          id: string
+          method: string
+          mood: string
+          mood_id: string | null
+        }
+        Insert: {
+          created_at?: string
+          device_id: string
+          id?: string
+          method: string
+          mood: string
+          mood_id?: string | null
+        }
+        Update: {
+          created_at?: string
+          device_id?: string
+          id?: string
+          method?: string
+          mood?: string
+          mood_id?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "sessions_mood_id_fkey"
+            columns: ["mood_id"]
+            isOneToOne: false
+            referencedRelation: "moods"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
     }
     Views: {
       [_ in never]: never
