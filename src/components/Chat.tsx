@@ -5,6 +5,7 @@ import { Send, Loader2 } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { toast } from "sonner";
 import type { MoodKey } from "@/lib/moods";
+import { saveChatMessage } from "@/lib/store";
 
 type Msg = { role: "user" | "assistant"; content: string };
 
@@ -19,6 +20,7 @@ export const Chat = ({ mood }: { mood: MoodKey }) => {
   const [input, setInput] = useState("");
   const [loading, setLoading] = useState(false);
   const scrollRef = useRef<HTMLDivElement>(null);
+  const conversationIdRef = useRef<string>(crypto.randomUUID());
 
   useEffect(() => {
     scrollRef.current?.scrollTo({ top: scrollRef.current.scrollHeight, behavior: "smooth" });
@@ -31,6 +33,7 @@ export const Chat = ({ mood }: { mood: MoodKey }) => {
     setMessages((m) => [...m, userMsg]);
     setInput("");
     setLoading(true);
+    saveChatMessage(conversationIdRef.current, mood, "user", text).catch(console.error);
 
     let assistant = "";
     let started = false;
@@ -91,6 +94,9 @@ export const Chat = ({ mood }: { mood: MoodKey }) => {
       toast.error("Something went wrong.");
     } finally {
       setLoading(false);
+      if (assistant.trim()) {
+        saveChatMessage(conversationIdRef.current, mood, "assistant", assistant).catch(console.error);
+      }
     }
   };
 

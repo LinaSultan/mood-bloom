@@ -60,6 +60,30 @@ export async function getFeedback() {
   return data ?? [];
 }
 
+export async function saveChatMessage(
+  conversation_id: string,
+  mood: MoodKey,
+  role: "user" | "assistant",
+  content: string,
+) {
+  const device_id = getDeviceId();
+  const { error } = await supabase
+    .from("chat_messages")
+    .insert({ device_id, conversation_id, mood, role, content });
+  if (error) throw error;
+}
+
+export async function getChatMessages() {
+  const device_id = getDeviceId();
+  const { data, error } = await supabase
+    .from("chat_messages")
+    .select("id, conversation_id, mood, role, content, created_at")
+    .eq("device_id", device_id)
+    .order("created_at", { ascending: true });
+  if (error) throw error;
+  return data ?? [];
+}
+
 // Adaptive ordering: rank methods per mood by feedback score
 export async function rankedMethodsFor(mood: MoodKey): Promise<MethodKey[]> {
   const all = await getFeedback();
