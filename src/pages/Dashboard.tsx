@@ -1,21 +1,30 @@
-import { useEffect, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { AppShell } from "@/components/AppShell";
-import { getFeedback, getRecentMoods } from "@/lib/store";
+import { getChatMessages, getFeedback, getRecentMoods } from "@/lib/store";
 import { METHOD_LABELS, MOODS, type MethodKey, type MoodKey } from "@/lib/moods";
 import { Button } from "@/components/ui/button";
 import { Link } from "react-router-dom";
-import { Sparkles } from "lucide-react";
+import { MessageCircle, Sparkles } from "lucide-react";
+import {
+  Accordion,
+  AccordionContent,
+  AccordionItem,
+  AccordionTrigger,
+} from "@/components/ui/accordion";
 
 type MoodRow = { id: string; mood: string; note: string | null; created_at: string };
 type FBRow = { mood: string; method: string; rating: string };
+type ChatRow = { id: string; conversation_id: string; mood: string; role: string; content: string; created_at: string };
 
 const Dashboard = () => {
   const [moods, setMoods] = useState<MoodRow[]>([]);
   const [fb, setFb] = useState<FBRow[]>([]);
+  const [chats, setChats] = useState<ChatRow[]>([]);
 
   useEffect(() => {
     getRecentMoods(60).then(setMoods).catch(console.error);
     getFeedback().then(setFb).catch(console.error);
+    getChatMessages().then(setChats).catch(console.error);
   }, []);
 
   const total = moods.length;
