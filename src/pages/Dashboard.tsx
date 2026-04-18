@@ -51,6 +51,42 @@ const Dashboard = () => {
   }, {});
   const recurring = Object.entries(weekCounts).find(([, c]) => c >= 3)?.[0] as MoodKey | undefined;
 
+  // Group chat messages: conversation -> { mood, date, messages }
+  const conversations = useMemo(() => {
+    const map = new Map<string, { id: string; mood: string; started_at: string; messages: ChatRow[] }>();
+    for (const m of chats) {
+      const c = map.get(m.conversation_id);
+      if (!c) {
+        map.set(m.conversation_id, { id: m.conversation_id, mood: m.mood, started_at: m.created_at, messages: [m] });
+      } else {
+        c.messages.push(m);
+      }
+    }
+    return [...map.values()].sort((a, b) => +new Date(b.started_at) - +new Date(a.started_at));
+  }, [chats]);
+
+  // Group conversations by date label
+  const groupedByDate = useMemo(() => {
+    const fmt = (d: string) => {
+      const date = new Date(d);
+      const today = new Date();
+      const yesterday = new Date(Date.now() - 86400000);
+      const isSame = (a: Date, b: Date) =>
+        a.getFullYear() === b.getFullYear() && a.getMonth() === b.getMonth() && a.getDate() === b.getDate();
+      if (isSame(date, today)) return "Today";
+      if (isSame(date, yesterday)) return "Yesterday";
+      return date.toLocaleDateString(undefined, { weekday: "long", month: "short", day: "numeric" });
+    };
+    const groups = new Map<string, typeof conversations>();
+    for (const c of conversations) {
+      const label = fmt(c.started_at);
+      const arr = groups.get(label) ?? [];
+      arr.push(c);
+      groups.set(label, arr);
+    }
+    return [...groups.entries()];
+  }, [conversations]);
+
   return (
     <AppShell>
       <div className="fade-up space-y-5">
