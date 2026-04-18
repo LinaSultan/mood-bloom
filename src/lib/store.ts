@@ -73,6 +73,16 @@ export async function saveChatMessage(
   if (error) throw error;
 }
 
+export async function deleteConversation(conversation_id: string) {
+  const device_id = getDeviceId();
+  const { error } = await supabase
+    .from("chat_messages")
+    .delete()
+    .eq("device_id", device_id)
+    .eq("conversation_id", conversation_id);
+  if (error) throw error;
+}
+
 export async function getChatMessages() {
   const device_id = getDeviceId();
   const { data, error } = await supabase
