@@ -1,16 +1,28 @@
 import { useEffect, useMemo, useState } from "react";
 import { AppShell } from "@/components/AppShell";
-import { getChatMessages, getFeedback, getRecentMoods } from "@/lib/store";
+import { deleteConversation, getChatMessages, getFeedback, getRecentMoods } from "@/lib/store";
 import { METHOD_LABELS, MOODS, type MethodKey, type MoodKey } from "@/lib/moods";
 import { Button } from "@/components/ui/button";
 import { Link } from "react-router-dom";
-import { MessageCircle, Sparkles } from "lucide-react";
+import { MessageCircle, Sparkles, Trash2 } from "lucide-react";
 import {
   Accordion,
   AccordionContent,
   AccordionItem,
   AccordionTrigger,
 } from "@/components/ui/accordion";
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+  AlertDialogTrigger,
+} from "@/components/ui/alert-dialog";
+import { toast } from "@/hooks/use-toast";
 
 type MoodRow = { id: string; mood: string; note: string | null; created_at: string };
 type FBRow = { mood: string; method: string; rating: string };
@@ -234,6 +246,46 @@ const Dashboard = () => {
                                   {m.content}
                                 </div>
                               ))}
+                              <AlertDialog>
+                                <AlertDialogTrigger asChild>
+                                  <Button
+                                    variant="ghost"
+                                    size="sm"
+                                    className="mt-2 h-8 gap-1.5 rounded-full text-xs text-muted-foreground hover:text-destructive"
+                                  >
+                                    <Trash2 className="h-3.5 w-3.5" />
+                                    Delete this conversation
+                                  </Button>
+                                </AlertDialogTrigger>
+                                <AlertDialogContent className="rounded-3xl">
+                                  <AlertDialogHeader>
+                                    <AlertDialogTitle className="font-serif text-xl">
+                                      Let this conversation go?
+                                    </AlertDialogTitle>
+                                    <AlertDialogDescription>
+                                      This will gently remove all {c.messages.length} messages from this chat. You can't undo it.
+                                    </AlertDialogDescription>
+                                  </AlertDialogHeader>
+                                  <AlertDialogFooter>
+                                    <AlertDialogCancel className="rounded-full">Keep it</AlertDialogCancel>
+                                    <AlertDialogAction
+                                      className="rounded-full bg-destructive text-destructive-foreground hover:bg-destructive/90"
+                                      onClick={async () => {
+                                        try {
+                                          await deleteConversation(c.id);
+                                          setChats((prev) => prev.filter((m) => m.conversation_id !== c.id));
+                                          toast({ description: "Conversation released." });
+                                        } catch (e) {
+                                          console.error(e);
+                                          toast({ description: "Couldn't delete just now.", variant: "destructive" });
+                                        }
+                                      }}
+                                    >
+                                      Yes, delete
+                                    </AlertDialogAction>
+                                  </AlertDialogFooter>
+                                </AlertDialogContent>
+                              </AlertDialog>
                             </div>
                           </AccordionContent>
                         </AccordionItem>
