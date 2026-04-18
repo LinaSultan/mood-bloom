@@ -142,6 +142,74 @@ const Dashboard = () => {
           )}
         </div>
 
+        {/* Past AI conversations */}
+        {conversations.length > 0 && (
+          <div className="rounded-3xl border border-border bg-card p-5 shadow-card">
+            <div className="flex items-center gap-2">
+              <MessageCircle className="h-4 w-4 text-primary" />
+              <p className="font-serif text-xl text-foreground">Past conversations</p>
+            </div>
+            <p className="mt-1 text-xs text-muted-foreground">
+              {conversations.length} {conversations.length === 1 ? "chat" : "chats"} · grouped by day
+            </p>
+            <div className="mt-4 space-y-5">
+              {groupedByDate.map(([label, convs]) => (
+                <div key={label}>
+                  <p className="text-xs uppercase tracking-[0.18em] text-muted-foreground">{label}</p>
+                  <Accordion type="multiple" className="mt-2 space-y-2">
+                    {convs.map((c) => {
+                      const moodMeta = MOODS.find((m) => m.key === c.mood);
+                      const time = new Date(c.started_at).toLocaleTimeString(undefined, { hour: "numeric", minute: "2-digit" });
+                      const userCount = c.messages.filter((m) => m.role === "user").length;
+                      return (
+                        <AccordionItem
+                          key={c.id}
+                          value={c.id}
+                          className="rounded-2xl border border-border bg-background px-4"
+                        >
+                          <AccordionTrigger className="py-3 hover:no-underline">
+                            <div className="flex flex-1 items-center gap-3 text-left">
+                              <span
+                                className="flex h-8 w-8 shrink-0 items-center justify-center rounded-xl text-base"
+                                style={{ backgroundColor: `hsl(var(--mood-${c.mood}) / 0.5)` }}
+                              >
+                                {moodMeta?.emoji ?? "💬"}
+                              </span>
+                              <div className="flex-1 min-w-0">
+                                <p className="text-sm capitalize text-foreground">{moodMeta?.label ?? c.mood}</p>
+                                <p className="text-xs text-muted-foreground">
+                                  {time} · {userCount} {userCount === 1 ? "message" : "messages"}
+                                </p>
+                              </div>
+                            </div>
+                          </AccordionTrigger>
+                          <AccordionContent>
+                            <div className="space-y-2 pb-3">
+                              {c.messages.map((m) => (
+                                <div
+                                  key={m.id}
+                                  className={
+                                    "max-w-[88%] rounded-2xl px-3.5 py-2 text-sm leading-relaxed " +
+                                    (m.role === "assistant"
+                                      ? "bg-secondary text-secondary-foreground rounded-bl-sm"
+                                      : "ml-auto bg-primary text-primary-foreground rounded-br-sm")
+                                  }
+                                >
+                                  {m.content}
+                                </div>
+                              ))}
+                            </div>
+                          </AccordionContent>
+                        </AccordionItem>
+                      );
+                    })}
+                  </Accordion>
+                </div>
+              ))}
+            </div>
+          </div>
+        )}
+
         <Link to="/">
           <Button className="w-full h-12 rounded-full bg-gradient-sage text-primary-foreground">
             New check-in
